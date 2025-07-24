@@ -4,9 +4,11 @@ import anwarImage from './assets/anwar-walid-image.jpg'
 import deepakImage from './assets/deepak.gif'
 import showcaseBg from './assets/showcase_bg.png'
 import logo from './assets/logo.png'
+import chartIcon from './assets/chart-icon.png'
 
 function App() {
   const [isMobile, setIsMobile] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     // Check if device is mobile
@@ -21,6 +23,43 @@ function App() {
       window.removeEventListener('resize', checkMobile)
     }
   }, [])
+
+  // Close mobile menu when screen size changes
+  useEffect(() => {
+    if (!isMobile) {
+      setIsMobileMenuOpen(false)
+    }
+  }, [isMobile])
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.mobile-menu-button') && !event.target.closest('.mobile-sidebar')) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMobileMenuOpen])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMobileMenuOpen])
 
   // Animated counter effect
   useEffect(() => {
@@ -247,8 +286,34 @@ function App() {
             <li><a href="#team">Team</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
+          {isMobile && (
+            <button 
+              className="mobile-menu-button" 
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <span className="hamburger-icon">☰</span>
+            </button>
+          )}
         </div>
       </nav>
+
+      {/* Mobile Sidebar */}
+      {isMobile && isMobileMenuOpen && (
+        <div className="mobile-sidebar">
+          <button 
+            className="mobile-menu-button close-button" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <span className="hamburger-icon">×</span>
+          </button>
+          <ul className="mobile-nav-links">
+            <li><a href="#home" onClick={() => setIsMobileMenuOpen(false)}>Home</a></li>
+            <li><a href="#mission" onClick={() => setIsMobileMenuOpen(false)}>About</a></li>
+            <li><a href="#team" onClick={() => setIsMobileMenuOpen(false)}>Team</a></li>
+            <li><a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</a></li>
+          </ul>
+        </div>
+      )}
 
       {/* Showcase Section */}
       <section id="home" className="showcase">
@@ -321,7 +386,9 @@ function App() {
           <h2 className="statistics-title">Market Impact</h2>
           <div className="statistics-cards">
             <div className="stat-card">
-              <div className="stat-icon">📈</div>
+              <div className="stat-icon">
+                <img src={chartIcon} alt="Chart" className="stat-icon-image" />
+              </div>
               <div className="stat-number" data-target="3.98">0</div>
               <div className="stat-label">Billion USD</div>
               <div className="stat-description">Open RAN Market by 2030</div>
